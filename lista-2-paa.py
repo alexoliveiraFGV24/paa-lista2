@@ -1,4 +1,5 @@
 from typing import List, Tuple
+import math
 
 ############ Atenção ################
 # Não altere a assinatura das funções.
@@ -67,7 +68,21 @@ def problema_2(sabores: List[int]) -> int:
     a sequência de sabores consumidos e retorne o tamanho da maior
     subsequência contínua de valores distintos.
     """
-    pass
+
+    vistos = set()
+    n = len(sabores)
+    i = 0
+    max_len = 0
+
+    for j in range(n):
+        while sabores[j] in vistos:
+            vistos.remove(sabores[i])
+            i += 1
+        vistos.add(sabores[j])
+        max_len = max(max_len, j - i + 1)
+
+    return max_len
+
 
 
 # ==============================================================================
@@ -163,4 +178,47 @@ def problema_7(A: List[int]) -> int:
     $$ \sum_{i=1}^{n} |A_i-k| $$
     A complexidade de tempo deve ser $O(n)$.
     """
-    pass
+
+    def partition(arr, low, high, pivot):
+        for i in range(low, high + 1):
+            if arr[i] == pivot:
+                arr[i], arr[high] = arr[high], arr[i]
+                break
+        store_index = low
+        for i in range(low, high):
+            if arr[i] < pivot:
+                arr[i], arr[store_index] = arr[store_index], arr[i]
+                store_index += 1
+        arr[store_index], arr[high] = arr[high], arr[store_index]
+        return store_index
+
+    def medianOf(A:List[int]):
+        A = sorted(A)
+        return A[len(A) // 2]
+    
+    def selectMOM(A:List[int], p:int, r:int, k:int):
+        n = r - p + 1
+        if k <= 0 or k > n:
+            return -1
+        median = []
+        i = 0
+        pos = p
+        while pos <= r:
+            size = r - pos + 1
+            group_size = 5 if size >= 5 else size
+            group = A[pos:pos + group_size]
+            median.append(medianOf(group))
+            i += 1
+            pos += 5
+        mom = median[i - 1] if i == 1 else selectMOM(median, 0, i - 1, i // 2)
+        j = partition(A, p, r, mom)
+        if j - p == k - 1:
+            return A[j]
+        elif j - p > k - 1:
+            return selectMOM(A, p, j - 1, k)
+        else:
+            return selectMOM(A, j + 1, r, k - j + p - 1)
+        
+    n = len(A)
+    k_pos = (n + 1) // 2
+    return selectMOM(A.copy(), 0, n - 1, k_pos)
