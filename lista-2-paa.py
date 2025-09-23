@@ -69,6 +69,8 @@ def problema_2(sabores: List[int]) -> int:
     subsequência contínua de valores distintos.
     """
 
+    # Ideia: 
+
     vistos = set()
     n = len(sabores)
     i = 0
@@ -164,7 +166,32 @@ def problema_6(A: List[int], k: int) -> int:
     A complexidade esperada é de $O(n \cdot \log(M))$, onde $M$ é a maior
     resposta possível.
     """
-    pass
+
+    # Ideia: Temos que achar o menor T inteiro tal que sum(math.floor(T / A_i) for A_i in A) >= k
+    # Para isso, descobri um limite superior razoável para T manipulando a desigualdade (k*min(A))
+    # Logo, montariamos um array auxiliar [0,1,2,..,k*min(A)] e faríamos uma busca binária modificada nele
+    # Começaríamos no meio do array. Se o total de órbitas desse T for >= k, vamos para a porção esquerda, pois queremos diminuir T
+    # Caso contrário, vamos para a porção direita 
+
+    # Função auxiliar para calcular o total de órbitas para um valor T
+    def total_orbitas(T: int) -> int:
+        return sum(math.floor(T / A_i) for A_i in A)
+    
+    # Um limite superior razoável para T
+    min_A = min(A)
+    max_T = k * min_A  
+
+    # Implementação da busca binária para encontrar o menor T
+    esquerda = 0
+    direita = max_T
+    while esquerda < direita:
+        meio = (esquerda + direita) // 2
+        if total_orbitas(meio) >= k:
+            direita = meio
+        else:
+            esquerda = meio + 1
+
+    return esquerda
 
 
 # ==============================================================================
@@ -179,6 +206,13 @@ def problema_7(A: List[int]) -> int:
     A complexidade de tempo deve ser $O(n)$.
     """
 
+    # Ideia: vimos em estatística que a mediana minimiza tal soma. 
+    # Logo, devemos calcular a mediana de A e ver qual elemento de A mais se aproxima dela
+    # Portanto, podemos usar o algoritmo median of medians
+
+    # Funções auxiliares para fazer o algoritmo mediana das medianas (O(n)), mostrado em aula
+    # Basicamente copiei, colei e traduzi os códigos dos slides para Python
+
     def partition(arr, low, high, pivot):
         for i in range(low, high + 1):
             if arr[i] == pivot:
@@ -191,9 +225,9 @@ def problema_7(A: List[int]) -> int:
                 store_index += 1
         arr[store_index], arr[high] = arr[high], arr[store_index]
         return store_index
-
+    
     def medianOf(A:List[int]):
-        A = sorted(A)
+        A = sorted(A)  # Função prória do Python que substitui o Quicksort
         return A[len(A) // 2]
     
     def selectMOM(A:List[int], p:int, r:int, k:int):
@@ -218,7 +252,10 @@ def problema_7(A: List[int]) -> int:
             return selectMOM(A, p, j - 1, k)
         else:
             return selectMOM(A, j + 1, r, k - j + p - 1)
-        
+    
+    # Pego o tamanho da lista, a posição central da lista e calculo a mediana em O(n)
     n = len(A)
     k_pos = (n + 1) // 2
-    return selectMOM(A.copy(), 0, n - 1, k_pos)
+    mediana = selectMOM(A.copy(), 0, n - 1, k_pos)
+
+    return mediana
