@@ -52,7 +52,6 @@ def problema_1(eventos: List[Tuple[int, int]]) -> Tuple[int, Tuple[int, int]]:
 
     O algoritmo deve ter tempo de execução $O(n \log n)$.
     """
-    pass
 
 
 # ==============================================================================
@@ -69,18 +68,19 @@ def problema_2(sabores: List[int]) -> int:
     subsequência contínua de valores distintos.
     """
 
-    # Ideia: 
+    # Ideia: vamos comparando as sequências e armazenando as sequências vistas
+    # Usei o set do Python, que tem a propriedade de armazenar apenas elementos distintos
 
-    vistos = set()
-    n = len(sabores)
+    vistos = set() # No pior caso será O(n) de espaço
+    n = len(sabores) # O(1)
     i = 0
     max_len = 0
 
-    for j in range(n):
-        while sabores[j] in vistos:
+    for j in range(n):  # Passo por todos os sabores (O(n))
+        while sabores[j] in vistos: # O(c), com c < n
             vistos.remove(sabores[i])
             i += 1
-        vistos.add(sabores[j])
+        vistos.add(sabores[j]) # O(1) no caso médio por conta da estrutura de tabela hash
         max_len = max(max_len, j - i + 1)
 
     return max_len
@@ -175,18 +175,18 @@ def problema_6(A: List[int], k: int) -> int:
 
     # Função auxiliar para calcular o total de órbitas para um valor T
     def total_orbitas(T: int) -> int:
-        return sum(math.floor(T / A_i) for A_i in A)
+        return sum(math.floor(T / A_i) for A_i in A) # O(n)
     
     # Um limite superior razoável para T
-    min_A = min(A)
+    min_A = min(A)  # O(n)
     max_T = k * min_A  
 
     # Implementação da busca binária para encontrar o menor T
     esquerda = 0
     direita = max_T
-    while esquerda < direita:
+    while esquerda < direita:  # O(logM), em que M seria o limite superior cotado para T
         meio = (esquerda + direita) // 2
-        if total_orbitas(meio) >= k:
+        if total_orbitas(meio) >= k:  # O(n)
             direita = meio
         else:
             esquerda = meio + 1
@@ -254,8 +254,8 @@ def problema_7(A: List[int]) -> int:
             return selectMOM(A, j + 1, r, k - j + p - 1)
     
     # Pego o tamanho da lista, a posição central da lista e calculo a mediana em O(n)
-    n = len(A)
+    n = len(A) # O(1)
     k_pos = (n + 1) // 2
-    mediana = selectMOM(A.copy(), 0, n - 1, k_pos)
+    mediana = selectMOM(A.copy(), 0, n - 1, k_pos) # O(n)
 
     return mediana
