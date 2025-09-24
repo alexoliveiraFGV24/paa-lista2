@@ -151,21 +151,15 @@ def problema_3(estadias: List[Tuple[int, int]]) -> Tuple[int, List[int]]:
     O algoritmo deve ter tempo de execução $O(n \log n)$.
     """
 
-    # Ideia: Ordenar as estadias por ordem de chegada, mantendo o índice original
+    # Ideia: Ordenar as estadias por ordem de chegada
     # Usar um heap mínimo para anotar os quartos ocupados
-    # De acordo com cada tempo de chegada e saída dos hóspedes, dizer no heap de reutilizo o quarto ou aloco um novo
+    # De acordo com cada tempo de chegada e saída dos hóspedes, dizer no heap se reutilizo o quarto ou aloco um novo
 
     # Funções auxiliares para fazer o heap mínimo e suas operações de adição e remoção (O(logn)), mostrado em aula
     # Basicamente copiei, colei e traduzi os códigos dos slides para Python 
-
-    # O(n)
-    hospedes = []
-    n = len(estadias)
-    for i in range(n):
-        hospedes.append((estadias[i][0], estadias[i][1], i))
     
-    # O(nlogn)
-    hospedes.sort(key=lambda x: (x[0], x[2]))
+    # Ordeno por tempo de entrada (O(nlogn))
+    estadias.sort(key=lambda x: x[0])
 
 
 
@@ -318,7 +312,3 @@ def problema_7(A: List[int]) -> int:
     mediana = selectMOM(A.copy(), 0, n - 1, k_pos) # O(n)
 
     return mediana
-
-A = [(7,8), (10,14), (12,17), (15,19)]
-# A = [(5,8), (2,6), (3,9)]
-print(problema_1(A))
