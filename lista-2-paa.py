@@ -156,10 +156,39 @@ def problema_3(estadias: List[Tuple[int, int]]) -> Tuple[int, List[int]]:
     # De acordo com cada tempo de chegada e saída dos hóspedes, dizer no heap se reutilizo o quarto ou aloco um novo
 
     # Funções auxiliares para fazer o heap mínimo e suas operações de adição e remoção (O(logn)), mostrado em aula
-    # Basicamente copiei, colei e traduzi os códigos dos slides para Python 
+    # Basicamente copiei, colei e traduzi os códigos dos slides para Python
+
+    def swap(a, b):
+        aux = b
+        b = a
+        a = aux
+        return a, b
+
+        # A[i], A[inx_menor] = A[inx_menor], A[i] (se der errado)
+
+    def minHeapfy(A, n, i):
+        inx_menor = i
+        inx_esq = 2 * i + 1
+        inx_dir = 2 * i + 2
+        if (inx_esq < n and A[inx_esq] < A[inx_menor]):
+            inx_menor = inx_esq
+        if (inx_dir < n and A[inx_dir] < A[inx_menor]):
+            inx_menor = inx_dir
+        if inx_menor != i:
+            i, inx_menor = swap(i, inx_menor)
+            minHeapfy(A, n, inx_menor)
+
+    def buildMinHeap(A, n):
+        for i in range(n // 2 - 1, -1, -1):
+            minHeapfy(A, n, i)
+
+    hospedes = []
+    n = len(estadias)
+    for i in range(n):
+        hospedes.append((estadias[i][0], estadias[i][1], i))
     
     # Ordeno por tempo de entrada (O(nlogn))
-    estadias.sort(key=lambda x: x[0])
+    hospedes.sort(key=lambda x: (x[0], x[2]))
 
 
 
