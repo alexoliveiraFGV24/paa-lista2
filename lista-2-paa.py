@@ -53,6 +53,46 @@ def problema_1(eventos: List[Tuple[int, int]]) -> Tuple[int, Tuple[int, int]]:
     O algoritmo deve ter tempo de execução $O(n \log n)$.
     """
 
+    # Ideia: Montar uma linha temporal para identificar as colisões entre os horários
+
+    # Montando a linha temporal (O(n))
+    linha_temporal = []
+    n = len(eventos)
+    for i in range(n):
+        evento = eventos[i]
+        linha_temporal.append((evento[0], 1))
+        linha_temporal.append((evento[1], -1))
+
+    # Ordenando pela entrada/saída (O(nlogn))
+    linha_temporal.sort(key=lambda x: (x[0], -x[1]))  # Caso de empate, a entrada vem primeiro
+    
+    max_pessoas = 0
+    atual_pessoas = 0
+    intervalos_maximais = []
+    intervalo_maximal = None
+
+    # Percorro
+    for i in range(2*n):
+        atual_pessoas += linha_temporal[i][1]
+        if atual_pessoas >= max_pessoas:
+            max_pessoas = atual_pessoas
+            intervalo_maximal = (linha_temporal[i][0], None, max_pessoas)
+        elif atual_pessoas < max_pessoas and intervalo_maximal[1] == None:
+            fim = linha_temporal[i][0]
+            intervalo = (intervalo_maximal[0], fim, max_pessoas)
+            intervalo_maximal = intervalo
+
+        if intervalo_maximal != None and intervalo_maximal[1] != None:
+            intervalos_maximais.append(intervalo_maximal)
+
+    # O(nlogn)
+    intervalos_maximais.sort(key=lambda x: (x[2], x[1]))
+
+    # O(n)
+    for intervalo in intervalos_maximais:
+        if intervalo[2] == max_pessoas:
+            return max_pessoas, (intervalo[0], intervalo[1])        
+
 
 # ==============================================================================
 # Problema 2 - Sisi e a Sorveteria
@@ -259,3 +299,7 @@ def problema_7(A: List[int]) -> int:
     mediana = selectMOM(A.copy(), 0, n - 1, k_pos) # O(n)
 
     return mediana
+
+A = [(7,8), (10,14), (12,17), (15,19)]
+# A = [(5,8), (2,6), (3,9)]
+print(problema_1(A))
