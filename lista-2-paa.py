@@ -53,44 +53,47 @@ def problema_1(eventos: List[Tuple[int, int]]) -> Tuple[int, Tuple[int, int]]:
     O algoritmo deve ter tempo de execução $O(n \log n)$.
     """
 
-    # Ideia: Montar uma linha temporal para identificar as colisões entre os horários
+    # Ideia: Montar uma linha temporal para identificar as colisões entre os horários, juntamente com "pesos" para entrada e saída
+    # Ir atualizando cada intervalo maximal de acordo com a relação entre total atual de pessoas e o máximo de pessoas na biblioteca
 
-    # Montando a linha temporal (O(n))
+    # Montando a linha temporal (O(n)), marcando se é entrada ou saída
     linha_temporal = []
     n = len(eventos)
     for i in range(n):
         evento = eventos[i]
-        linha_temporal.append((evento[0], 1))
-        linha_temporal.append((evento[1], -1))
+        linha_temporal.append((evento[0], 1)) # Entrada é 1
+        linha_temporal.append((evento[1], -1)) # Saída é -1
 
-    # Ordenando pela entrada/saída (O(nlogn))
-    linha_temporal.sort(key=lambda x: (x[0], -x[1]))  # Caso de empate, a entrada vem primeiro
+    # Ordenando pelo tempo de chegada/saída (O(nlogn))
+    linha_temporal.sort(key=lambda x: (x[0], -x[1]))  # Caso dê empate, o tipo entrada vem primeiro
     
     max_pessoas = 0
     atual_pessoas = 0
     intervalos_maximais = []
     intervalo_maximal = None
 
-    # Percorro
+    # Percorro a linha temporal (O(n))
     for i in range(2*n):
-        atual_pessoas += linha_temporal[i][1]
+        atual_pessoas += linha_temporal[i][1] # Achando o número atual de pessoas
         if atual_pessoas >= max_pessoas:
             max_pessoas = atual_pessoas
-            intervalo_maximal = (linha_temporal[i][0], None, max_pessoas)
+            intervalo_maximal = (linha_temporal[i][0], None, max_pessoas) # Atualizando o máximo de pessoas e começo a contar o início do meu intervalo maximal
+        # Finalizo o meu intervalo maximal daquele momento (lembrando que podem haver mais de um intervalo maximal)
         elif atual_pessoas < max_pessoas and intervalo_maximal[1] == None:
             fim = linha_temporal[i][0]
             intervalo = (intervalo_maximal[0], fim, max_pessoas)
             intervalo_maximal = intervalo
-
+        # Se o intervalo estiver completo, adiciono na minha linha do tempo de intervalos maximais
         if intervalo_maximal != None and intervalo_maximal[1] != None:
             intervalos_maximais.append(intervalo_maximal)
 
-    # O(nlogn)
-    intervalos_maximais.sort(key=lambda x: (x[2], x[1]))
+    # Ordenando pelo número máximo de pessoas no intervalo maximal (O(nlogn))
+    intervalos_maximais.sort(key=lambda x: (x[2], x[1])) # Caso dê empate, pego o intervalo que começou antes
 
-    # O(n)
+    # Vejo o intervalo maximal que tem o menor tempo de início
     for intervalo in intervalos_maximais:
         if intervalo[2] == max_pessoas:
+
             return max_pessoas, (intervalo[0], intervalo[1])        
 
 
@@ -147,7 +150,23 @@ def problema_3(estadias: List[Tuple[int, int]]) -> Tuple[int, List[int]]:
 
     O algoritmo deve ter tempo de execução $O(n \log n)$.
     """
-    pass
+
+    # Ideia: Ordenar as estadias por ordem de chegada, mantendo o índice original
+    # Usar um heap mínimo para anotar os quartos ocupados
+    # De acordo com cada tempo de chegada e saída dos hóspedes, dizer no heap de reutilizo o quarto ou aloco um novo
+
+    # Funções auxiliares para fazer o heap mínimo e suas operações de adição e remoção (O(logn)), mostrado em aula
+    # Basicamente copiei, colei e traduzi os códigos dos slides para Python 
+
+    # O(n)
+    hospedes = []
+    n = len(estadias)
+    for i in range(n):
+        hospedes.append((estadias[i][0], estadias[i][1], i))
+    
+    # O(nlogn)
+    hospedes.sort(key=lambda x: (x[0], x[2]))
+
 
 
 # ==============================================================================
