@@ -243,6 +243,11 @@ def problema_4(A: List[int], k: int) -> Tuple[int, int, int, int]:
 
     O algoritmo deve ter uma complexidade de tempo de $O(n^2 \log n)$.
     """
+
+    # Ideia: Solução de Equação Diofantina e algoritmo para calcular o mdc de dois números
+    # Passo por todos os elementos da lista e reduzo o problema A_a + A_B + A_c + A_d = k
+    # para três variáveis e depois para duas, juntamente com o cálculo do mdc
+    
     pass
 
 
