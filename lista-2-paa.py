@@ -155,10 +155,10 @@ def problema_3(estadias: List[Tuple[int, int]]) -> Tuple[int, List[int]]:
     # Usar um heap mínimo para anotar os quartos ocupados
     # De acordo com cada tempo de chegada e saída dos hóspedes, dizer no heap se reutilizo o quarto ou aloco um novo
 
-    # Funções auxiliares para fazer o heap mínimo e suas operações de adição e remoção (O(logn)), mostrado em aula
+    # Funções auxiliares para fazer o heap mínimo e suas operações de adição e remoção (O(logn)), mostrados em aula
     # Basicamente copiei, colei, traduzi e adaptei o código do Heapfy e, ao invés de criar o heap de uma vez, fiz as funções pop e push
 
-
+    # O(logn)
     def minHeapfy(A, i):
         n = len(A)
         inx_menor = i
@@ -172,6 +172,7 @@ def problema_3(estadias: List[Tuple[int, int]]) -> Tuple[int, List[int]]:
             A[i], A[inx_menor] = A[inx_menor], A[i]            
             minHeapfy(A, n, inx_menor)
 
+    # O(logn)
     def minHeapPush(heap, elemento):
         n = len(heap)
         heap.append(elemento)
@@ -183,7 +184,8 @@ def problema_3(estadias: List[Tuple[int, int]]) -> Tuple[int, List[int]]:
                 i = pai
             else:
                 break
-
+    
+    # O(logn)
     def minHeapPop(heap):
         if not heap:
             return None
@@ -194,26 +196,29 @@ def problema_3(estadias: List[Tuple[int, int]]) -> Tuple[int, List[int]]:
             minHeapfy(heap, 0)
         return menor
 
-
+    # Faço a indexação das estadias e ordeno a sequência (O(n) + O(nlogn) = O(nlogn))
     n = len(estadias)
     hospedes_com_indice = []
     for i in range(n):
         hospedes_com_indice.append((estadias[i][0], estadias[i][1], i))
     hospedes_com_indice.sort(key=lambda x: (x[0], x[2]))  # Ordena por tempo de chegada, caso dê empate, pela ordem do input
 
-    heap = []  # heap de (tempo_de_saida, numero_do_quarto)
-    resultado = [0] * n
-    min_quartos_utilizados = 1  # contador de quartos
+    # (O(n) de espaço)
+    heap = []  # Inicializo o heap com tuplas na forma (saída, quarto)
+    resultado = [0] * n  # Inicializo a lista com os resultados dos quartos na ordem
+    min_quartos_utilizados = 1  # inicializo o contador de quartos utilizados, no mínimo
 
+    # Para cada hóspede que chegou no hotel (O(n))
     for chegada, saida, i in hospedes_com_indice:
-        if heap and heap[0][0] < chegada:
-            fim, quarto = minHeapPop(heap)
-        else:
+        if heap and heap[0][0] < chegada:  # Vejo se a chegada é maior que a saída e retiro a raiz do heap mínimo (reutilizo o quarto)
+            fim, quarto = minHeapPop(heap)  # O(logn)
+        else:  # Caso contrário, temos que alocar mais um quarto
             quarto = min_quartos_utilizados
-            min_quartos_utilizados += 1
+            min_quartos_utilizados += 1  
 
+        # Para ambos os casos, adiciono o hóspede no heap
         resultado[i] = quarto
-        minHeapPush(heap, (saida, quarto))
+        minHeapPush(heap, (saida, quarto))  # O(logn)
 
     return min_quartos_utilizados - 1, resultado
 
