@@ -1,5 +1,6 @@
 from typing import List, Tuple
 import math
+import bisect
 
 ############ Atenção ################
 # Não altere a assinatura das funções.
@@ -248,7 +249,41 @@ def problema_4(A: List[int], k: int) -> Tuple[int, int, int, int]:
     # Passo por todos os elementos da lista e reduzo o problema A_a + A_B + A_c + A_d = k
     # para três variáveis e depois para duas, juntamente com o cálculo do mdc
     
-    pass
+    n = len(A)
+    pares = []
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            pares.append((A[i] + A[j], i, j))
+
+    pares.sort()
+
+    left = 0
+    right = len(pares) - 1
+
+    while left < right:
+        soma_left, i1, j1 = pares[left]
+        soma_right, i2, j2 = pares[right]
+        total = soma_left + soma_right
+
+        if total == k:
+            indices = {i1, j1, i2, j2}
+            if len(indices) == 4:
+                return tuple(sorted([i1, j1, i2, j2]))
+            l_next = left + 1
+            r_prev = right - 1
+            if l_next < right:
+                left += 1
+            elif r_prev > left:
+                right -= 1
+            else:
+                break
+        elif total < k:
+            left += 1
+        else:
+            right -= 1
+
+    return (-1, -1, -1, -1)
 
 
 # ==============================================================================
@@ -268,7 +303,17 @@ def problema_5(blocos: List[int]) -> int:
     ou se inicia uma nova torre com ele. O algoritmo deve encontrar o número
     mínimo de torres necessárias com complexidade $O(n \log n)$.
     """
-    pass
+
+    torres = []
+
+    for bloco in blocos:
+        i = bisect.bisect_right(torres, -bloco)
+        if i < len(torres):
+            torres[i] = -bloco
+        else:
+            torres.append(-bloco)
+
+    return len(torres)
 
 
 # ==============================================================================
