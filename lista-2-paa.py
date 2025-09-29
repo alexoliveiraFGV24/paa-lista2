@@ -243,31 +243,41 @@ def problema_4(A: List[int], k: int) -> Tuple[int, int, int, int]:
     O algoritmo deve ter uma complexidade de tempo de $O(n^2 \log n)$.
     """
 
-    # Ideia: Solução de Equação Diofantina e algoritmo para calcular o mdc de dois números
-    # Passo por todos os elementos da lista e reduzo o problema A_a + A_B + A_c + A_d = k
-    # para três variáveis e depois para duas, juntamente com o cálculo do mdc
+    # Ideia: Transformar o problema de quatro números em um problema de dois
+    # Fazemos uma lista com todas as possíveis combinações de A[i] + A[j] (tal lista terá n(n-1)/2 termos)
+    # Ordenamos essa lista pelo valor da soma para realizar uma busca com dois ponteiros
     
     n = len(A)
     pares = []
 
+    # Gera todos os pares possíveis de elementos em A (O(n^2))
     for i in range(n):
         for j in range(i + 1, n):
             pares.append((A[i] + A[j], i, j))
 
+    # Ordena os pares pelo valor da soma (O(n^2logn))
     pares.sort()
 
+    # Ponteiros para busca em duas extremidades
     left = 0
     right = len(pares) - 1
 
+    # Busca enquanto os ponteiros não se cruzarem
     while left < right:
         soma_left, i1, j1 = pares[left]
         soma_right, i2, j2 = pares[right]
-        total = soma_left + soma_right
+        total = soma_left + soma_right    # soma das duas somas de pares
 
+        # Caso encontramos uma soma igual a k
         if total == k:
+            # Conjunto com os índices dos 4 elementos
             indices = {i1, j1, i2, j2}
+
+            # Verifica se os 4 índices são distintos
             if len(indices) == 4:
-                return tuple(sorted([i1, j1, i2, j2]))
+                return tuple(sorted([i1, j1, i2, j2]))  # O(1)
+
+            # Se houver colisão de índices, tenta mover os ponteiros
             l_next = left + 1
             r_prev = right - 1
             if l_next < right:
@@ -276,11 +286,15 @@ def problema_4(A: List[int], k: int) -> Tuple[int, int, int, int]:
                 right -= 1
             else:
                 break
+
+        # Se a soma total for menor que k, aumenta soma movendo ponteiro da esquerda
         elif total < k:
             left += 1
+        # Se a soma total for maior que k, diminui soma movendo ponteiro da direita
         else:
             right -= 1
 
+    # Se não encontrou nenhuma solução válida
     return (-1, -1, -1, -1)
 
 
