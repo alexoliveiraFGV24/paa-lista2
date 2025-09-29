@@ -111,21 +111,21 @@ def problema_2(sabores: List[int]) -> int:
     """
 
     # Ideia: vamos comparando as sequências e armazenando as sequências vistas
-    # Usei o set do Python, que tem a propriedade de armazenar apenas elementos distintos
+    # Usei o set do Python, que tem a propriedade de armazenar apenas elementos distintos (derivado do hash)
 
     vistos = set() # No pior caso será O(n) de espaço
     n = len(sabores) # O(1)
     i = 0
-    max_len = 0
+    tamanho_maximo = 0
 
     for j in range(n):  # Passo por todos os sabores (O(n))
         while sabores[j] in vistos: # O(c), com c < n
             vistos.remove(sabores[i]) # O(1) no caso médio por conta da estrutura de tabela hash
             i += 1
         vistos.add(sabores[j]) # O(1) no caso médio por conta da estrutura de tabela hash
-        max_len = max(max_len, j - i + 1)
+        tamanho_maximo = max(tamanho_maximo, j - i + 1)
 
-    return max_len
+    return tamanho_maximo
 
 
 
@@ -321,14 +321,14 @@ def problema_5(blocos: List[int]) -> int:
 
     min_torres = []
 
-    for bloco in blocos:
-        i = adicionar_mais_a_direita(min_torres, -bloco)
-        if i < len(min_torres):
+    for bloco in blocos:  # Para todos os blocos da lista
+        i = adicionar_mais_a_direita(min_torres, -bloco)  # Pego o índice mais a direita (O(logn))
+        if i < len(min_torres):  # Verifico se preciso adicionar uma nova torre
             min_torres[i] = -bloco
         else:
-            min_torres.append(-bloco)
+            min_torres.append(-bloco)  # Adiciono em O(1)
 
-    num_min_torres = len(min_torres)
+    num_min_torres = len(min_torres)  # Calculo o tamanho da lista em O(1)
 
     return num_min_torres
 
@@ -348,7 +348,7 @@ def problema_6(A: List[int], k: int) -> int:
     resposta possível.
     """
 
-    # Ideia: Temos que achar o menor T inteiro tal que sum(math.floor(T / A_i) for A_i in A) >= k
+    # Ideia: Temos que achar o menor T inteiro tal que sum(floor(T / A_i) for A_i in A) >= k
     # Para isso, descobri um limite superior razoável para T manipulando a desigualdade (k*min(A))
     # Logo, montariamos um array auxiliar [0,1,2,..,k*min(A)] e faríamos uma busca binária modificada nele
     # Começaríamos no meio do array. Se o total de órbitas desse T for >= k, vamos para a porção esquerda, pois queremos diminuir T
@@ -421,7 +421,7 @@ def problema_7(A: List[int]) -> int:
         arr.sort()
         return arr[len(arr) // 2]
     
-    def selectMOM(arr:List[int], p:int, r:int, k:int):
+    def selectMOM(arr:List[int], p:int, r:int, k:int) -> int:
         n = r - p + 1
         if k <= 0 or k > n:
             return -1
