@@ -1,6 +1,4 @@
 from typing import List, Tuple
-import math
-import bisect
 
 ############ Atenção ################
 # Não altere a assinatura das funções.
@@ -122,7 +120,7 @@ def problema_2(sabores: List[int]) -> int:
 
     for j in range(n):  # Passo por todos os sabores (O(n))
         while sabores[j] in vistos: # O(c), com c < n
-            vistos.remove(sabores[i])
+            vistos.remove(sabores[i]) # O(1) no caso médio por conta da estrutura de tabela hash
             i += 1
         vistos.add(sabores[j]) # O(1) no caso médio por conta da estrutura de tabela hash
         max_len = max(max_len, j - i + 1)
@@ -160,18 +158,18 @@ def problema_3(estadias: List[Tuple[int, int]]) -> Tuple[int, List[int]]:
     # Basicamente copiei, colei, traduzi e adaptei o código do Heapfy e, ao invés de criar o heap de uma vez, fiz as funções pop e push
 
     # O(logn)
-    def minHeapfy(A, i):
-        n = len(A)
+    def minHeapfy(arr, i):
+        n = len(arr)
         inx_menor = i
         inx_esq = 2 * i + 1
         inx_dir = 2 * i + 2
-        if (inx_esq < n and A[inx_esq][0] < A[inx_menor][1]):
+        if (inx_esq < n and arr[inx_esq][0] < arr[inx_menor][1]): # Adaptei de "arr[inx_esq][0] > arr[inx_menor][1]"" para "arr[inx_esq][0] < arr[inx_menor][1]"" (heap mínimo)
             inx_menor = inx_esq
-        if (inx_dir < n and A[inx_dir][0] < A[inx_menor][1]):
+        if (inx_dir < n and arr[inx_dir][0] < arr[inx_menor][1]):  # Adaptei de "arr[inx_dir][0] > arr[inx_menor][1]"" para "arr[inx_dir][0] < arr[inx_menor][1]"" (heap mínimo)
             inx_menor = inx_dir
         if inx_menor != i:
-            A[i], A[inx_menor] = A[inx_menor], A[i]            
-            minHeapfy(A, n, inx_menor)
+            arr[i], arr[inx_menor] = arr[inx_menor], arr[i]  # Swap            
+            minHeapfy(arr, n, inx_menor)
 
     # O(logn)
     def minHeapPush(heap, elemento):
@@ -181,7 +179,7 @@ def problema_3(estadias: List[Tuple[int, int]]) -> Tuple[int, List[int]]:
         while i > 0:
             pai = (i - 1) // 2
             if heap[i][0] < heap[pai][0]:
-                heap[i], heap[pai] = heap[pai], heap[i]
+                heap[i], heap[pai] = heap[pai], heap[i]  # Swap
                 i = pai
             else:
                 break
@@ -304,16 +302,35 @@ def problema_5(blocos: List[int]) -> int:
     mínimo de torres necessárias com complexidade $O(n \log n)$.
     """
 
-    torres = []
+    # Ideia: Fazer um "hash", mas colocando apenas o topo da torre 
+    # e contando quando devemos adicionar uma nova torre
+
+    # Função auxiliar para, dada um array ordenado, retornar o índice mais a direita 
+    # que um elemento x será adicionado na lista em O(logn)
+
+    def adicionar_mais_a_direita(arr, x):
+        inicio = 0
+        fim = len(arr)
+        while inicio < fim:
+            meio = (inicio + fim) // 2
+            if x < arr[meio]:
+                fim = meio
+            else:
+                inicio = meio + 1
+        return inicio
+
+    min_torres = []
 
     for bloco in blocos:
-        i = bisect.bisect_right(torres, -bloco)
-        if i < len(torres):
-            torres[i] = -bloco
+        i = adicionar_mais_a_direita(min_torres, -bloco)
+        if i < len(min_torres):
+            min_torres[i] = -bloco
         else:
-            torres.append(-bloco)
+            min_torres.append(-bloco)
 
-    return len(torres)
+    num_min_torres = len(min_torres)
+
+    return num_min_torres
 
 
 # ==============================================================================
@@ -335,11 +352,19 @@ def problema_6(A: List[int], k: int) -> int:
     # Para isso, descobri um limite superior razoável para T manipulando a desigualdade (k*min(A))
     # Logo, montariamos um array auxiliar [0,1,2,..,k*min(A)] e faríamos uma busca binária modificada nele
     # Começaríamos no meio do array. Se o total de órbitas desse T for >= k, vamos para a porção esquerda, pois queremos diminuir T
-    # Caso contrário, vamos para a porção direita 
+    # Caso contrário, vamos para a porção direita
 
-    # Função auxiliar para calcular o total de órbitas para um valor T
+    # Funções auxiliares para calcular o piso de um número real x em O(1) e
+    # para calcular o total de órbitas para um valor T em O(n)
+
+    def floor(x:float) -> int:
+        if x >= 0:
+            return int(x)
+        else:
+            return int(x) - (x != int(x))
+
     def total_orbitas(T: int) -> int:
-        return sum(math.floor(T / A_i) for A_i in A) # O(n)
+        return sum(floor(T / A_i) for A_i in A) # O(n)
     
     # Um limite superior razoável para T
     min_A = min(A)  # O(n)
@@ -377,41 +402,43 @@ def problema_7(A: List[int]) -> int:
     # Funções auxiliares para fazer o algoritmo mediana das medianas (O(n)), mostrado em aula
     # Basicamente copiei, colei e traduzi os códigos dos slides para Python
 
-    def partition(arr, low, high, pivot):
-        for i in range(low, high + 1):
-            if arr[i] == pivot:
-                arr[i], arr[high] = arr[high], arr[i]
+    def particao(arr:List[int], inicio:int, fim:int, pivo:int) -> int:
+        for i in range(inicio, fim + 1):
+            if arr[i] == pivo:
+                arr[i], arr[fim] = arr[fim], arr[i]
                 break
-        store_index = low
-        for i in range(low, high):
-            if arr[i] < pivot:
-                arr[i], arr[store_index] = arr[store_index], arr[i]
-                store_index += 1
-        arr[store_index], arr[high] = arr[high], arr[store_index]
-        return store_index
+        store_inx = inicio
+        for i in range(inicio, fim):
+            if arr[i] < pivo:
+                arr[i], arr[store_inx] = arr[store_inx], arr[i]
+                store_inx += 1
+        arr[store_inx], arr[fim] = arr[fim], arr[store_inx]  # Swap
+        return store_inx
     
-    def medianOf(A:List[int]):
-        A = sorted(A)  # Função prória do Python que substitui o Quicksort
-        return A[len(A) // 2]
+    # No caso da mediana das medianas, sempre ordenaremos 5 elementos, ou seja, para nós, essa função é O(1)
+    # Contudo, para um array geral, a função é O(nlogn)
+    def medianaArray(arr:List[int]) -> int:
+        arr.sort()
+        return arr[len(arr) // 2]
     
-    def selectMOM(A:List[int], p:int, r:int, k:int):
+    def selectMOM(arr:List[int], p:int, r:int, k:int):
         n = r - p + 1
         if k <= 0 or k > n:
             return -1
-        median = []
+        mediana = []
         i = 0
-        pos = p
-        while pos <= r:
-            size = r - pos + 1
-            group_size = 5 if size >= 5 else size
-            group = A[pos:pos + group_size]
-            median.append(medianOf(group))
+        posicao = p
+        while posicao <= r:
+            tamanho = r - posicao + 1
+            tamanho_grupo = 5 if tamanho >= 5 else tamanho
+            grupo = arr[posicao:posicao + tamanho_grupo]
+            mediana.append(medianaArray(grupo))
             i += 1
-            pos += 5
-        mom = median[i - 1] if i == 1 else selectMOM(median, 0, i - 1, i // 2)
-        j = partition(A, p, r, mom)
+            posicao += 5
+        mom = mediana[i - 1] if i == 1 else selectMOM(mediana, 0, i - 1, i // 2)
+        j = particao(arr, p, r, mom)
         if j - p == k - 1:
-            return A[j]
+            return arr[j]
         elif j - p > k - 1:
             return selectMOM(A, p, j - 1, k)
         else:
